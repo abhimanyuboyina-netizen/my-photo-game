@@ -67,7 +67,7 @@ bgm.play();
 };
 
 function drawBird(){
-ctx.drawImage(bird,x,y,70,70);
+ctx.drawImage(bird,x,y,60,60);
 }
 
 function drawPipe(pipe){
@@ -104,14 +104,20 @@ pipes[i].x-=1;
 
 drawPipe(pipes[i]);
 
+let birdWidth=60;
+let birdHeight=60;
+let pipeWidth=50;
+
 if(
-x+70>pipes[i].x &&
-x<pipes[i].x+50 &&
-(y<pipes[i].top || y+70>pipes[i].bottom)
+x+birdWidth > pipes[i].x &&
+x < pipes[i].x + pipeWidth &&
+(
+y < pipes[i].top ||
+y + birdHeight > pipes[i].bottom
+)
 ){
 gameOver=true;
 }
-
 if(pipes[i].x==60){
 score++;
 }
