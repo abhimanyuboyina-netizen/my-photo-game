@@ -10,13 +10,15 @@ canvas{display:block;margin:auto;background:#111;}
 
 <body>
 
-<canvas id="gameCanvas" width="400" height="600"></canvas>
+<canvas id="gameCanvas"></canvas>
 <audio id="bgm" src="music.mp3" loop></audio>
 
 <script>
 
 let canvas=document.getElementById("gameCanvas");
 let ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
 
 let bird=new Image();
 bird.src="img1.png";
@@ -27,7 +29,7 @@ let x=50;
 let y;
 let gravity=0.4;
 let velocity=0;
-let lift=-7;
+let lift=-5;
 
 let pipes=[];
 let score;
@@ -84,7 +86,7 @@ bottom:top+gap
 
 }
 for(let i=0;i<pipes.length;i++){
-pipes[i].x-=1.5;  // slower pipes
+pipes[i].x-=1;  // slower pipes
 drawPipe(pipes[i]);
 
 if(
