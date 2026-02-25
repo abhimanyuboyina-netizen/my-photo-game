@@ -48,12 +48,17 @@ let pipes=[];
 let score=0;
 let gameOver=false;
 
+let pipeDistance=350;
+let gap=320;
+let lastPipeX=canvas.width;
+
 function resetGame(){
 y=canvas.height/2;
 velocity=0;
 pipes=[];
 score=0;
 gameOver=false;
+lastPipeX=canvas.width;
 }
 
 document.onclick=()=>{
@@ -67,7 +72,17 @@ bgm.play();
 };
 
 function drawBird(){
-ctx.drawImage(bird,x,y,60,60);
+
+ctx.save();
+
+let angle=velocity*0.05;
+
+ctx.translate(x+30,y+30);
+ctx.rotate(angle);
+ctx.drawImage(bird,-30,-30,60,60);
+
+ctx.restore();
+
 }
 
 function drawPipe(pipe){
@@ -85,9 +100,7 @@ y+=velocity;
 
 drawBird();
 
-if(Math.random()<0.008){
-
-let gap=320;
+if(lastPipeX - pipes.length*pipeDistance < canvas.width){
 
 let top=Math.random()*(canvas.height-gap-150)+75;
 
@@ -96,6 +109,8 @@ x:canvas.width,
 top:top,
 bottom:top+gap
 });
+
+lastPipeX+=pipeDistance;
 }
 
 for(let i=0;i<pipes.length;i++){
@@ -104,20 +119,22 @@ pipes[i].x-=1;
 
 drawPipe(pipes[i]);
 
-let birdWidth=60;
-let birdHeight=60;
-let pipeWidth=50;
+let hitboxW=40;
+let hitboxH=40;
+let offsetX=10;
+let offsetY=10;
 
 if(
-x+birdWidth > pipes[i].x &&
-x < pipes[i].x + pipeWidth &&
+x+offsetX+hitboxW > pipes[i].x &&
+x+offsetX < pipes[i].x + 50 &&
 (
-y < pipes[i].top ||
-y + birdHeight > pipes[i].bottom
+y+offsetY < pipes[i].top ||
+y+offsetY+hitboxH > pipes[i].bottom
 )
 ){
 gameOver=true;
 }
+
 if(pipes[i].x==60){
 score++;
 }
