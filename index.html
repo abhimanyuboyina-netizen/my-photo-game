@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Flappy Photo Game</title>
 
 <style>
@@ -12,12 +10,10 @@ margin:0;
 overflow:hidden;
 background:black;
 }
-
 canvas{
 display:block;
 }
 </style>
-
 </head>
 
 <body>
@@ -36,6 +32,12 @@ canvas.height=window.innerHeight;
 let bird=new Image();
 bird.src="img1.png";
 
+let pipeImg=new Image();
+pipeImg.src="image2.png";
+
+let bgImg=new Image();
+bgImg.src="bg.png";
+
 let bgm=document.getElementById("bgm");
 
 let x=60;
@@ -48,21 +50,22 @@ let pipes=[];
 let score=0;
 let gameOver=false;
 
-let pipeDistance=300;
 let gap=320;
 let frameCount=0;
-pipes.push({
-x:canvas.width,
-top:200,
-bottom:200+gap
-});
+
 function resetGame(){
 y=canvas.height/2;
 velocity=0;
 pipes=[];
 score=0;
 gameOver=false;
-lastPipeX=canvas.width;
+frameCount=0;
+
+pipes.push({
+x:canvas.width,
+top:200,
+bottom:200+gap
+});
 }
 
 document.onclick=()=>{
@@ -76,28 +79,29 @@ bgm.play();
 };
 
 function drawBird(){
-
 ctx.save();
-
 let angle=velocity*0.05;
-
 ctx.translate(x+30,y+30);
 ctx.rotate(angle);
 ctx.drawImage(bird,-30,-30,60,60);
+ctx.restore();
+}
 
+function drawPipe(pipe){
+
+ctx.drawImage(pipeImg,pipe.x,0,50,pipe.top);
+
+ctx.save();
+ctx.translate(pipe.x+25,pipe.bottom);
+ctx.scale(1,-1);
+ctx.drawImage(pipeImg,-25,0,50,canvas.height-pipe.bottom);
 ctx.restore();
 
 }
 
-function drawPipe(pipe){
-ctx.fillStyle="green";
-ctx.fillRect(pipe.x,0,50,pipe.top);
-ctx.fillRect(pipe.x,pipe.bottom,50,canvas.height);
-}
-
 function update(){
 
-ctx.clearRect(0,0,canvas.width,canvas.height);
+ctx.drawImage(bgImg,0,0,canvas.width,canvas.height);
 
 velocity+=gravity;
 y+=velocity;
@@ -106,7 +110,7 @@ drawBird();
 
 frameCount++;
 
-if(frameCount % 100 == 0){
+if(frameCount % 120 == 0){
 
 let top=Math.random()*(canvas.height-gap-150)+75;
 
@@ -117,6 +121,7 @@ bottom:top+gap
 });
 
 }
+
 for(let i=0;i<pipes.length;i++){
 
 pipes[i].x-=1;
