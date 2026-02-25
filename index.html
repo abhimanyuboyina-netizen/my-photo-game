@@ -71,11 +71,18 @@ y+=velocity;
 drawBird();
 
 if(Math.random()<0.02){
-let top=Math.random()*200+50;
-let gap=220;   // increased gap
-pipes.push({x:400,top:top,bottom:top+gap});
-}
 
+let gap=300;   // safe gap
+
+let top=Math.random()*(canvas.height-gap-100)+50;
+
+pipes.push({
+x:400,
+top:top,
+bottom:top+gap
+});
+
+}
 for(let i=0;i<pipes.length;i++){
 pipes[i].x-=1.5;  // slower pipes
 drawPipe(pipes[i]);
