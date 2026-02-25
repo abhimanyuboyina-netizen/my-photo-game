@@ -48,10 +48,9 @@ let pipes=[];
 let score=0;
 let gameOver=false;
 
-let pipeDistance=350;
+let pipeDistance=300;
 let gap=320;
-let lastPipeX=canvas.width;
-
+let frameCount=0;
 function resetGame(){
 y=canvas.height/2;
 velocity=0;
@@ -100,7 +99,9 @@ y+=velocity;
 
 drawBird();
 
-if(lastPipeX - pipes.length*pipeDistance < canvas.width){
+frameCount++;
+
+if(frameCount % 150 == 0){
 
 let top=Math.random()*(canvas.height-gap-150)+75;
 
@@ -110,9 +111,7 @@ top:top,
 bottom:top+gap
 });
 
-lastPipeX+=pipeDistance;
 }
-
 for(let i=0;i<pipes.length;i++){
 
 pipes[i].x-=1;
