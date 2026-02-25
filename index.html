@@ -1,89 +1,108 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Catch My Photo Game</title>
+<title>Flappy Photo Game</title>
 <style>
 body{
 margin:0;
 overflow:hidden;
 background:black;
-text-align:center;
-color:white;
-font-family:Arial;
 }
-#start{
-padding:10px 20px;
-font-size:20px;
-margin-top:20px;
-}
-#score{
-font-size:25px;
-}
-#target{
-width:100px;
-height:100px;
-position:absolute;
-display:none;
-cursor:pointer;
+canvas{
+display:block;
+margin:auto;
+background:#111;
 }
 </style>
 </head>
 
 <body>
 
-<h1>Catch My Photo</h1>
-<button id="start">Start Game</button>
-<div id="score">Score: 0</div>
-<img id="target">
-
-<audio id="bgm" src="music.mp3"></audio>
+<canvas id="gameCanvas" width="400" height="600"></canvas>
+<audio id="bgm" src="music.mp3" loop></audio>
 
 <script>
 
+let canvas=document.getElementById("gameCanvas");
+let ctx=canvas.getContext("2d");
+
+let bird=new Image();
+bird.src="img1.png";
+
+let bgm=document.getElementById("bgm");
+
+let x=50;
+let y=200;
+let gravity=0.5;
+let velocity=0;
+let lift=-8;
+
+let pipes=[];
 let score=0;
-let gameRunning=false;
+let gameOver=false;
 
-const target=document.getElementById("target");
-const music=document.getElementById("bgm");
-
-let images=[
-"img1.png",
-"img2.png",
-"img3.png",
-"img4.png"
-];
-
-document.getElementById("start").onclick=()=>{
-score=0;
-gameRunning=true;
-target.style.display="block";
-music.play();
-move();
+document.onclick=()=>{
+velocity=lift;
+bgm.play();
 };
 
-target.onclick=()=>{
-if(!gameRunning)return;
+function drawBird(){
+ctx.drawImage(bird,x,y,60,60);
+}
+
+function drawPipe(pipe){
+ctx.fillStyle="green";
+ctx.fillRect(pipe.x,0,60,pipe.top);
+ctx.fillRect(pipe.x,pipe.bottom,60,600);
+}
+
+function update(){
+ctx.clearRect(0,0,400,600);
+
+velocity+=gravity;
+y+=velocity;
+
+drawBird();
+
+if(Math.random()<0.02){
+let top=Math.random()*200+50;
+let gap=150;
+pipes.push({x:400,top:top,bottom:top+gap});
+}
+
+for(let i=0;i<pipes.length;i++){
+pipes[i].x-=2;
+drawPipe(pipes[i]);
+
+if(
+x+60>pipes[i].x &&
+x<pipes[i].x+60 &&
+(y<pipes[i].top || y+60>pipes[i].bottom)
+){
+gameOver=true;
+}
+
+if(pipes[i].x==0){
 score++;
-document.getElementById("score").innerText="Score: "+score;
-move();
-};
-
-function move(){
-let randomImage=images[Math.floor(Math.random()*images.length)];
-target.src=randomImage;
-
-let x=Math.random()*(window.innerWidth-100);
-let y=Math.random()*(window.innerHeight-100);
-
-target.style.left=x+"px";
-target.style.top=y+"px";
+}
 }
 
-setInterval(()=>{
-if(gameRunning){
-move();
+ctx.fillStyle="white";
+ctx.font="20px Arial";
+ctx.fillText("Score: "+score,10,30);
+
+if(y>600 || y<0){
+gameOver=true;
 }
-},800);
+
+if(!gameOver){
+requestAnimationFrame(update);
+}else{
+ctx.fillText("Game Over",150,300);
+}
+}
+
+update();
 
 </script>
 
