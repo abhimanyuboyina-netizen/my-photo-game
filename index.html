@@ -34,6 +34,10 @@ bird.src="img1.png";
 
 let pipeImg=new Image();
 pipeImg.src="image2.png";
+let pipeReady=false;
+pipeImg.onload=function(){
+pipeReady=true;
+}
 
 let bgImg=new Image();
 bgImg.src="bg.png";
@@ -43,8 +47,8 @@ let bgm=document.getElementById("bgm");
 let x=60;
 let y;
 let velocity=0;
-let gravity=0.6;
-let lift=-10;
+let gravity=0.5;
+let lift=-8;
 
 let pipes=[];
 let score=0;
@@ -89,16 +93,19 @@ ctx.restore();
 
 function drawPipe(pipe){
 
-ctx.drawImage(pipeImg,pipe.x,0,50,pipe.top);
+if(pipeReady){
+
+ctx.drawImage(pipeImg,pipe.x,0,60,pipe.top);
 
 ctx.save();
-ctx.translate(pipe.x+25,pipe.bottom);
+ctx.translate(pipe.x+30,pipe.bottom);
 ctx.scale(1,-1);
-ctx.drawImage(pipeImg,-25,0,50,canvas.height-pipe.bottom);
+ctx.drawImage(pipeImg,-30,0,60,canvas.height-pipe.bottom);
 ctx.restore();
 
 }
 
+}
 function update(){
 
 ctx.drawImage(bgImg,0,0,canvas.width,canvas.height);
