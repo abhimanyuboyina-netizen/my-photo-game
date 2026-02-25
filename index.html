@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>My Photo Catch Game</title>
+<style>
+body{
+margin:0;
+overflow:hidden;
+background:black;
+text-align:center;
+color:white;
+font-family:Arial;
+}
+#start{
+padding:10px 20px;
+font-size:20px;
+margin-top:20px;
+}
+#score{
+font-size:25px;
+}
+#target{
+width:100px;
+height:100px;
+position:absolute;
+display:none;
+cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Catch My Photo</h1>
+<button id="start">Start Game</button>
+<div id="score">Score: 0</div>
+<img id="target">
+
+<audio id="bgm" src="music.mp3"></audio>
+
+<script>
+
+let score=0;
+let gameRunning=false;
+
+const target=document.getElementById("target");
+const music=document.getElementById("bgm");
+
+let images=[
+"img1.png",
+"img2.png",
+"img3.png",
+"img4.png"
+];
+
+document.getElementById("start").onclick=()=>{
+score=0;
+gameRunning=true;
+target.style.display="block";
+music.play();
+move();
+};
+
+target.onclick=()=>{
+if(!gameRunning)return;
+score++;
+document.getElementById("score").innerText="Score: "+score;
+move();
+};
+
+function move(){
+let randomImage=images[Math.floor(Math.random()*images.length)];
+target.src=randomImage;
+
+let x=Math.random()*(window.innerWidth-100);
+let y=Math.random()*(window.innerHeight-100);
+
+target.style.left=x+"px";
+target.style.top=y+"px";
+}
+
+setInterval(()=>{
+if(gameRunning){
+move();
+}
+},800);
+
+</script>
+
+</body>
+</html>
