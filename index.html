@@ -3,16 +3,8 @@
 <head>
 <title>Flappy Photo Game</title>
 <style>
-body{
-margin:0;
-overflow:hidden;
-background:black;
-}
-canvas{
-display:block;
-margin:auto;
-background:#111;
-}
+body{margin:0;overflow:hidden;background:black;}
+canvas{display:block;margin:auto;background:#111;}
 </style>
 </head>
 
@@ -32,18 +24,31 @@ bird.src="img1.png";
 let bgm=document.getElementById("bgm");
 
 let x=50;
-let y=200;
-let gravity=0.5;
+let y;
+let gravity=0.4;
 let velocity=0;
-let lift=-8;
+let lift=-7;
 
 let pipes=[];
-let score=0;
+let score;
 let gameOver=false;
 
+function resetGame(){
+y=200;
+velocity=0;
+pipes=[];
+score=0;
+gameOver=false;
+}
+
 document.onclick=()=>{
+if(gameOver){
+resetGame();
+update();
+}else{
 velocity=lift;
 bgm.play();
+}
 };
 
 function drawBird(){
@@ -57,6 +62,7 @@ ctx.fillRect(pipe.x,pipe.bottom,60,600);
 }
 
 function update(){
+
 ctx.clearRect(0,0,400,600);
 
 velocity+=gravity;
@@ -66,12 +72,12 @@ drawBird();
 
 if(Math.random()<0.02){
 let top=Math.random()*200+50;
-let gap=150;
+let gap=220;   // increased gap
 pipes.push({x:400,top:top,bottom:top+gap});
 }
 
 for(let i=0;i<pipes.length;i++){
-pipes[i].x-=2;
+pipes[i].x-=1.5;  // slower pipes
 drawPipe(pipes[i]);
 
 if(
@@ -82,7 +88,7 @@ x<pipes[i].x+60 &&
 gameOver=true;
 }
 
-if(pipes[i].x==0){
+if(pipes[i].x==50){
 score++;
 }
 }
@@ -98,10 +104,12 @@ gameOver=true;
 if(!gameOver){
 requestAnimationFrame(update);
 }else{
-ctx.fillText("Game Over",150,300);
+ctx.fillText("Game Over",130,300);
+ctx.fillText("Click to Restart",120,340);
 }
 }
 
+resetGame();
 update();
 
 </script>
