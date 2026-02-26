@@ -18,7 +18,9 @@ display:block;
 <body>
 
 <canvas id="gameCanvas"></canvas>
-<audio id="bgm" src="music.mp3" loop></audio>
+<audio id="bgm" preload="auto" loop>
+<source src="music.mp3" type="audio/mpeg">
+</audio>
 
 <script>
 
@@ -69,7 +71,22 @@ resetGame();
 update();
 }else{
 velocity=lift;
-bgm.play();
+document.onclick = () => {
+
+if(gameOver){
+resetGame();
+bgm.currentTime = 0;
+bgm.play().catch(()=>{});
+update();
+} 
+else {
+velocity = lift;
+if(bgm.paused){
+bgm.play().catch(()=>{});
+}
+}
+
+};
 }
 };
 
