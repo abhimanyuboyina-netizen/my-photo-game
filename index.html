@@ -40,6 +40,13 @@ let bgImg=new Image();
 bgImg.src="bg.png";
 
 let bgm=document.getElementById("bgm");
+  let startSound=new Audio("start.mp3");
+let jumpSound=new Audio("jump.mp3");
+let gameOverSound=new Audio("gameover.mp3");
+
+startSound.preload="auto";
+jumpSound.preload="auto";
+gameOverSound.preload="auto";
 
 let x=80;
 let y;
@@ -65,31 +72,27 @@ gameOver=false;
 frame=0;
 }
 
-document.onclick=()=>{
+document.addEventListener("click", ()=>{
+
 if(gameOver){
 resetGame();
+startSound.currentTime=0;
+startSound.play().catch(()=>{});
 update();
-}else{
+}
+else{
 velocity=lift;
-document.onclick = () => {
 
-if(gameOver){
-resetGame();
-bgm.currentTime = 0;
-bgm.play().catch(()=>{});
-update();
-} 
-else {
-velocity = lift;
+jumpSound.currentTime=0;
+jumpSound.play().catch(()=>{});
+
 if(bgm.paused){
+bgm.currentTime=0;
 bgm.play().catch(()=>{});
 }
 }
 
-};
-}
-};
-
+});
 function drawBird(){
 ctx.save();
 let angle = velocity * 0.05;
@@ -155,7 +158,11 @@ y < pipes[i].top ||
 y+50 > pipes[i].bottom
 )
 ){
+if(!gameOver){
 gameOver=true;
+gameOverSound.currentTime=0;
+gameOverSound.play().catch(()=>{});
+}
 }
 
 // SCORE
@@ -171,9 +178,12 @@ ctx.font="28px Arial";
 ctx.fillText("Score: "+score,20,50);
 
 if(y+50 > canvas.height || y < 0){
+if(!gameOver){
 gameOver=true;
+gameOverSound.currentTime=0;
+gameOverSound.play().catch(()=>{});
 }
-
+}
 if(!gameOver){
 requestAnimationFrame(update);
 }else{
