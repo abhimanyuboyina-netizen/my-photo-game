@@ -1,204 +1,197 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Flappy Photo Game</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <style>
-body{margin:0;overflow:hidden;background:black;}
+body{margin:0;overflow:hidden;font-family:Arial;background:black;}
 canvas{display:block;}
+
+#startScreen,#gameOverScreen{
+position:absolute;
+top:0;left:0;
+width:100%;
+height:100%;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+background:rgba(0,0,0,0.5);
+color:white;
+}
+
+button{
+padding:15px 40px;
+font-size:20px;
+border:none;
+border-radius:30px;
+}
 </style>
 </head>
 
 <body>
 
-<canvas id="gameCanvas"></canvas>
-<audio id="bgm" src="music.mp3" preload="auto" loop></audio>
+<div id="startScreen">
+<h2>PRESS TAP TO FLY</h2>
+<img src="img1.png" width="120">
+<br><br>
+<button onclick="startGame()">START GAME</button>
+</div>
+
+<div id="gameOverScreen" style="display:none;">
+<h1>Game Over</h1>
+<h2 id="finalScore"></h2>
+<h3 id="bestScore"></h3>
+<button onclick="restartGame()">TRY AGAIN</button>
+</div>
+
+<canvas id="game"></canvas>
+
+<audio id="startSound" src="start.mp3"></audio>
+<audio id="jumpSound" src="jump.mp3"></audio>
+<audio id="overSound" src="gameover.mp3"></audio>
 
 <script>
 
-let canvas=document.getElementById("gameCanvas");
+let canvas=document.getElementById("game");
 let ctx=canvas.getContext("2d");
 
 canvas.width=window.innerWidth;
 canvas.height=window.innerHeight;
 
-let birdImg=new Image();
-birdImg.src="img1.png";
+let bird=new Image();
+bird.src="img1.png";
 
-let pipeImg=new Image();
-pipeImg.src="image2.png";
+let pipe=new Image();
+pipe.src="img2.png";
 
-let bgImg=new Image();
-bgImg.src="bg.png";
+let bg=new Image();
+bg.src="bg.png";
 
-let bgm=document.getElementById("bgm");
+let startS=document.getElementById("startSound");
+let jumpS=document.getElementById("jumpSound");
+let overS=document.getElementById("overSound");
 
-let startSound=new Audio("start.mp3");
-let jumpSound=new Audio("jump.mp3");
-let gameOverSound=new Audio("gameover.mp3");
-
-let audioUnlocked=false;
-
-function unlockAudio(){
-if(audioUnlocked) return;
-bgm.play().then(()=>{
-bgm.pause();
-bgm.currentTime=0;
-audioUnlocked=true;
-}).catch(()=>{});
-}
-
-document.addEventListener("touchstart",unlockAudio,{once:true});
-
-let x=80;
-let y;
-let velocity=0;
+let x=80,y,vel=0;
 let gravity=0.6;
 let lift=-10;
-
 let pipes=[];
-let score=0;
-let gameOver=false;
-
-let gap=320;
-let pipeWidth=70;
-let pipeSpeed=2.5;
+let gap=350;
+let pipeWidth=90;
+let speed=4;
 let frame=0;
+let score=0;
+let best=localStorage.getItem("best")||0;
+let gameOver=false;
+let started=false;
 
-function resetGame(){
+function startGame(){
+document.getElementById("startScreen").style.display="none";
+startS.play();
+started=true;
+update();
+}
+
+function restartGame(){
+document.getElementById("gameOverScreen").style.display="none";
+reset();
+update();
+}
+
+function reset(){
 y=canvas.height/2;
-velocity=0;
+vel=0;
 pipes=[];
 score=0;
-gameOver=false;
 frame=0;
+gameOver=false;
 }
 
 document.addEventListener("click",()=>{
-
-unlockAudio();
-
-if(gameOver){
-resetGame();
-startSound.currentTime=0;
-startSound.play().catch(()=>{});
-update();
-}
-else{
-velocity=lift;
-
-jumpSound.currentTime=0;
-jumpSound.play().catch(()=>{});
-
-if(bgm.paused){
-bgm.currentTime=0;
-bgm.play().catch(()=>{});
-}
-}
-
+if(!started)return;
+vel=lift;
+jumpS.currentTime=0;
+jumpS.play();
 });
 
 function drawBird(){
 ctx.save();
-let angle=velocity*0.05;
 ctx.translate(x+30,y+30);
-ctx.rotate(angle);
-ctx.drawImage(birdImg,-30,-30,60,60);
+ctx.rotate(vel*0.05);
+ctx.drawImage(bird,-30,-30,60,60);
 ctx.restore();
 }
 
-function drawPipe(pipe){
-
-if(pipeImg.complete){
-
-let pattern=ctx.createPattern(pipeImg,"repeat-y");
+function drawPipe(p){
+let pattern=ctx.createPattern(pipe,"repeat-y");
 ctx.fillStyle=pattern;
-
-ctx.fillRect(pipe.x,0,pipeWidth,pipe.top);
-ctx.fillRect(pipe.x,pipe.bottom,pipeWidth,canvas.height);
-
-}
-
+ctx.fillRect(p.x,0,pipeWidth,p.top);
+ctx.fillRect(p.x,p.bottom,pipeWidth,canvas.height);
 }
 
 function update(){
 
-ctx.drawImage(bgImg,0,0,canvas.width,canvas.height);
+ctx.drawImage(bg,0,0,canvas.width,canvas.height);
 
-velocity+=gravity;
-y+=velocity;
-
+vel+=gravity;
+y+=vel;
 drawBird();
 
 frame++;
 
-if(frame%110==0){
-
+if(frame%100==0){
 let top=Math.random()*(canvas.height-gap-200)+100;
-
 pipes.push({
 x:canvas.width,
 top:top,
 bottom:top+gap,
 scored:false
 });
-
 }
 
 for(let i=0;i<pipes.length;i++){
 
-pipes[i].x-=pipeSpeed;
-
+pipes[i].x-=speed;
 drawPipe(pipes[i]);
 
-if(
-x+50 > pipes[i].x &&
-x < pipes[i].x + pipeWidth &&
-(
-y < pipes[i].top ||
-y+50 > pipes[i].bottom
-)
-){
-if(!gameOver){
+if(x+50>pipes[i].x &&
+x<pipes[i].x+pipeWidth &&
+(y<pipes[i].top||y+50>pipes[i].bottom)){
 gameOver=true;
-gameOverSound.currentTime=0;
-gameOverSound.play().catch(()=>{});
-}
 }
 
-if(!pipes[i].scored && pipes[i].x + pipeWidth < x){
+if(!pipes[i].scored && pipes[i].x+pipeWidth<x){
 score++;
 pipes[i].scored=true;
 }
-
 }
 
 ctx.fillStyle="white";
 ctx.font="28px Arial";
-ctx.fillText("Score: "+score,20,50);
+ctx.fillText("Score:"+score,20,40);
 
-if(y+50 > canvas.height || y < 0){
-if(!gameOver){
+if(y>canvas.height||y<0){
 gameOver=true;
-gameOverSound.currentTime=0;
-gameOverSound.play().catch(()=>{});
-}
 }
 
 if(!gameOver){
 requestAnimationFrame(update);
-}else{
-ctx.fillStyle="white";
-ctx.font="40px Arial";
-ctx.fillText("Game Over",canvas.width/2-110,canvas.height/2);
-ctx.font="22px Arial";
-ctx.fillText("Tap to Restart",canvas.width/2-80,canvas.height/2+40);
 }
+else{
+overS.play();
+if(score>best){
+best=score;
+localStorage.setItem("best",best);
+}
+document.getElementById("gameOverScreen").style.display="flex";
+document.getElementById("finalScore").innerText="Score:"+score;
+document.getElementById("bestScore").innerText="Best:"+best;
 }
 
-resetGame();
-update();
+}
+
+reset();
 
 </script>
+
 </body>
 </html>
